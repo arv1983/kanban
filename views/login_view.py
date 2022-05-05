@@ -5,13 +5,13 @@ from models.users_model import UsersModel
 
 
 
-bp = Blueprint("carrinho_route", __name__)
+bp = Blueprint("login_route", __name__)
 
-@bp.route("/signup", methods=["POST"])
-def signup():
+@bp.route("/login", methods=["POST"])
+def login():
     data = request.get_json()
 
     
 
-    response = UsersModel.signup(data)
+    response = UsersModel.login(data)
     return jsonify(response),201
