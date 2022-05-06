@@ -6,7 +6,7 @@ from sqlalchemy.sql.schema import ForeignKey
 
 
 class GroupModel(db.Model):
-    __tablename__ = "users"
+    __tablename__ = "groups"
     id = Column(Integer, primary_key=True)
     name = Column(String(127), nullable=False)
     users = relationship("users", backref=backref("users"))

@@ -9,3 +9,6 @@ def init_app(app: Flask):
     app.db = db
 
     from models.users_model import UsersModel
+    from models.group_model import GroupModel
+    from models.posts_model import PostsModel
+    from models.state_post_model import PostsModel

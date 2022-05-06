@@ -15,26 +15,21 @@ def create_app() -> Flask:
     app = Flask(__name__)
     env = Env()
     env.read_env()
-
+    jwt = JWTManager()
 
 
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://anderson:1234@localhost:5432/kanban'
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["JSON_SORT_KEYS"] = False
+    app.config["JWT_SECRET_KEY"] ="pass"
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = False  
     
     db.init_app(app)
     migrate.init_app(app)
-    
+    jwt.init_app(app)
     views.init_app(app)
 
     
-    # @app.route("/")
-    # def signup():
-    #     data = request.get_json()
-    #     response = UsersModel.signup(data)
-    #     return jsonify(response),201
-
-
     return app
 
 

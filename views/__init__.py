@@ -3,6 +3,7 @@ from flask import Flask
 
 
 def init_app(app: Flask):
-    from .signup_views import bp as views
-
-    app.register_blueprint(views)
+    from .signup_views import bp as signup
+    app.register_blueprint(signup)
+    from .login_view import bp as login
+    app.register_blueprint(login)

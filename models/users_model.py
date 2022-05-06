@@ -1,16 +1,16 @@
-from flask import request
+from flask import jsonify, request
 from sqlalchemy import Column, String, Integer
 from config.db import db
-from services.signup import ValidatorSignup
+from services.validator import Validator
 from werkzeug.security import check_password_hash, generate_password_hash
-
+from flask_jwt_extended import create_access_token
 
 
 class UsersModel(db.Model):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True)
     name = Column(String(127), nullable=False)
-    email = Column(String(255), nullable=False)
+    email = Column(String(255), nullable=False, unique=True)
     password = Column(String(127), nullable=True)
     api_key = Column(String(511), nullable=True)
     api_key2 = Column(String(511), nullable=True)
@@ -31,7 +31,7 @@ class UsersModel(db.Model):
 
     def signup(self):
 
-        validator_response = ValidatorSignup.signup_validator(self)
+        validator_response = Validator.signup_validator(self)
                 
         if validator_response: 
             return validator_response
@@ -42,11 +42,21 @@ class UsersModel(db.Model):
         db.session.commit()
     
     def login(self):
-
-        ...... continua a validacao aqui
-        email = request.json.get("email", None)
-        password = request.json.get("senha", None)
-        user = UsersModel.query.filter_by(email=email).first()
         
-        print(user)
+        validator_response = Validator.login_validator(self)
+                
+        if validator_response: 
+            return validator_response
+
+        email = request.json.get("email", None)
+        password = request.json.get("password", None)
+        user = UsersModel.query.filter_by(email=email).first()
+
+        if check_password_hash(user.password, password):
+            return create_access_token(identity=user.name)
+            
+        return {'Autorização':'negada'},401
+        
+        
+
         
