@@ -5,10 +5,9 @@ from sqlalchemy.sql.schema import ForeignKey
 from datetime import date
 from sqlalchemy.sql.sqltypes import Date
 
-
-class PostsModel(db.Model):
+class StateModel(db.Model):
     __tablename__ = "state"
     id = Column(Integer, primary_key=True)
-    signed = relationship("users", backref=backref("users"))
+    signed = Column(Integer, ForeignKey('users.id'))
     progress = Column(Integer, nullable=False)
     date = Column(Date, nullable=False)

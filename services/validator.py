@@ -21,4 +21,9 @@ class Validator:
         LOGIN = ["email", "password"]
         return Validator.base(LOGIN, data)
 
+    def group_create_validator(data: dict):
+        GROUP = ["name"]
+        return Validator.base(GROUP, data)
+
+
 

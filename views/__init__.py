@@ -7,3 +7,5 @@ def init_app(app: Flask):
     app.register_blueprint(signup)
     from .login_view import bp as login
     app.register_blueprint(login)
+    from .group_view import bp as group
+    app.register_blueprint(group)
