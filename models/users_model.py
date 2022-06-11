@@ -1,5 +1,5 @@
-from flask import jsonify, request
-from sqlalchemy import Column, Date, ForeignKey, String, Integer
+from flask import jsonify, request, session
+from sqlalchemy import Column, Date, ForeignKey, String, Integer, and_, or_
 import sqlalchemy
 from sqlalchemy.orm import relationship, backref
 from config.db import db
@@ -7,6 +7,8 @@ from services.validator import Validator
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_jwt_extended import create_access_token
 from dataclasses import dataclass
+from datetime import datetime
+
 # from flask_sqlalchemy import SQLAlchemy
 # # from psycopg2.errors import UniqueViolation
 # from flask import Flask
@@ -81,12 +83,6 @@ class UsersModel (db.Model):
             )
         return cliente
 
-    # def find_user(user):
-    #     print(user)
-
-    #     return UsersModel.query.filter_by(email=user).first()
-
-
 
 
 
@@ -110,6 +106,25 @@ class GroupsModel (db.Model):
                 {"Error": "Usuario nao encontrado"},
             )
         return cliente    
+    
+    def check_group_if_exists_by_id(id_group):
+        group = GroupsModel.query.filter_by(id=id_group).first()
+        if not group:
+            return False
+        return True
+
+    def check_group_if_exists_by_name(group_name):
+        
+
+        produtos = GroupsModel.query.filter(
+            GroupsModel.name.like((f'%{group_name}%')) 
+        )
+        
+        
+        
+        return produtos
+
+
 
 class Post (db.Model):
     __tablename__ = "post"
@@ -121,17 +136,29 @@ class Post (db.Model):
     # Unknown SQL type: 'bytea' 
     image = db.Column('image', db.String)
 
+
 class MembersModel (db.Model):
     __tablename__ = "MembersModel"
     id = db.Column('id', db.Integer, primary_key = True)
     id_group = db.Column('id_group', db.Integer)
     id_member = db.Column('id_member', db.Integer, db.ForeignKey('post.id'))
-    date = db.Column('date', db.Integer)
+    date = db.DateTime(datetime.now())
     users_id = db.Column('users_id', db.Integer, db.ForeignKey('UsersModel.id'))
-    groups_id = db.Column('groups_id', db.Integer)
+    groups_id = db.Column('groups_id', db.Integer, db.ForeignKey('GroupsModel.id'))
 
     post = db.relationship('Post', foreign_keys=id_member)
     usersmodel = db.relationship('UsersModel', foreign_keys=users_id)
+
+    
+
+
+    def check_user_in_group(user_id, group_id):
+ 
+        member_in_group = MembersModel.query.filter(MembersModel.groups_id == group_id, MembersModel.users_id == user_id)
+
+        return member_in_group
+
+        
 
 
 
