@@ -19,7 +19,7 @@ def create_app() -> Flask:
 
 
 
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://grwqqpdhhrutgk:b9a964ee98cc11f73dc94171a3cc1771d80016efe134e401e19babfcdd6ed5cb@ec2-52-204-195-41.compute-1.amazonaws.com:5432/dc2gvkdurje1kt'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://grwqqpdhhrutgk:b9a964ee98cc11f73dc94171a3cc1771d80016efe134e401e19babfcdd6ed5cb@ec2-52-204-195-41.compute-1.amazonaws.com:5432/dc2gvkdurje1kt'
     # app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://anderson:1234@localhost:5432/kanban'
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["JSON_SORT_KEYS"] = False
