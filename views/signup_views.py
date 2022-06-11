@@ -9,3 +9,8 @@ def signup():
     
     response = UsersModel.signup(data)
     return jsonify(response),201
+
+@bp.route('/')
+def index():
+  return "<h1>Welcome to CodingX</h1>"
+
