@@ -142,7 +142,7 @@ class MembersModel (db.Model):
     id = db.Column('id', db.Integer, primary_key = True)
     id_group = db.Column('id_group', db.Integer)
     id_member = db.Column('id_member', db.Integer, db.ForeignKey('post.id'))
-    date = db.DateTime(datetime.now())
+    date = db.Column('date', db.Date)
     users_id = db.Column('users_id', db.Integer, db.ForeignKey('UsersModel.id'))
     groups_id = db.Column('groups_id', db.Integer, db.ForeignKey('GroupsModel.id'))
 

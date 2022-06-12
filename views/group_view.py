@@ -15,7 +15,7 @@ def create():
     user = UsersModel.check_user(get_jwt_identity())
     
     validator_response = Validator.group_create_validator(data)
-
+    
     if GroupsModel.check_group_if_exists_by_name(data['name']).first():
         return {'erro': 'grupo ja existe'},401
 
