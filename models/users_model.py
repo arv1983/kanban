@@ -9,14 +9,6 @@ from flask_jwt_extended import create_access_token
 from dataclasses import dataclass
 from datetime import datetime
 
-
-# from flask_sqlalchemy import SQLAlchemy
-# # from psycopg2.errors import UniqueViolation
-# from flask import Flask
-
-# app = Flask(__name__)
-# db = SQLAlchemy(app)
-
 class UsersModel (db.Model):
     __tablename__ = "tb_users"
     id = db.Column('id', db.Integer, primary_key = True)
@@ -152,6 +144,7 @@ class PostModel (db.Model):
     group_id = db.Column('group_id', db.Integer, db.ForeignKey('tb_groups.id'))
     
     def record_post(data):
+        print(data)
         
         try:
             data_serialized = PostModel(**data)
@@ -160,6 +153,16 @@ class PostModel (db.Model):
         except sqlalchemy.exc.IntegrityError as e:
             return {'unique': e}
         return data_serialized
+
+    def check_post_of_groupid(post_id, group_id):
+        
+        return PostModel.query.filter(PostModel.id == post_id, PostModel.group_id == group_id)
+
+    def record_edit_post(data):
+            seri = PostModel(**data)
+            db.session.add(seri)
+            db.session.commit()
+
 
 
 
