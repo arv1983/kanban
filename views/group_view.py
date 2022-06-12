@@ -44,12 +44,12 @@ def join(group_id):
 
     check_group = GroupsModel.check_group_if_exists_by_id(group_id)
     if not check_group:
-        return {'Erro': 'Grupo não encontrado'},404
+        return {'Erro': 'Grupo não encontrado.'},404
     
     
 
     if MembersModel.check_user_in_group(data['users_id'], group_id).all():
-        return{'erro': 'ja tem cadastro'},401
+        return{'Erro': 'Usuário já cadastrado.'},401
     
 
     try:
@@ -72,12 +72,12 @@ def exit(group_id):
     data['groups_id'] = group_id
     data['users_id'] = UsersModel.check_user(get_jwt_identity()).id
 
-    ss = MembersModel.check_user_in_group(data['users_id'], group_id).first()
+    check_user_in_group = MembersModel.check_user_in_group(data['users_id'], group_id).first()
         
-    if not ss:
-        return{'erro': 'nao esta no grupo'},401
+    if not check_user_in_group:
+        return{'Erro': 'O usuário não está no grupo.'},401
 
-    db.session.delete(ss)
+    db.session.delete(check_user_in_group)
     db.session.commit()
 
     return {'ss': 'ss'}
