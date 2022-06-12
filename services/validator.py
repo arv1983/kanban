@@ -25,5 +25,9 @@ class Validator:
         GROUP = ["name"]
         return Validator.base(GROUP, data)
 
+    def post_create_validator(data: dict):
+        POST = ["title", "description"]
+        return Validator.base(POST, data)        
+
 
 

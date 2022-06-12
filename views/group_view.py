@@ -73,9 +73,9 @@ def exit(group_id):
     data = {}
     data['groups_id'] = group_id
     data['users_id'] = UsersModel.check_user(get_jwt_identity()).id
-
+    
     check_user_in_group = MembersModel.check_user_in_group(data['users_id'], group_id).first()
-        
+    
     if not check_user_in_group:
         return{'Erro': 'O usuário não está no grupo.'},401
 

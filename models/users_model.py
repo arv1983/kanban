@@ -92,8 +92,9 @@ class UsersModel (db.Model):
 
     def check_user(user):
 
-        cliente = UsersModel.query.filter_by(email=user).first()
-        return cliente
+        user = UsersModel.query.filter_by(email=user).first()
+        print(user)
+        return user
 
 
 
@@ -120,7 +121,7 @@ class GroupsModel (db.Model):
     
     def check_group_if_exists_by_id(id_group):
         group = GroupsModel.query.filter_by(id=id_group).first()
-        print(group)
+
         if not group:
             return False
         return True
@@ -150,7 +151,17 @@ class PostModel (db.Model):
     user_id = db.Column('user_id', db.Integer, db.ForeignKey('tb_users.id'))
     group_id = db.Column('group_id', db.Integer, db.ForeignKey('tb_groups.id'))
     
-    
+    def record_post(data):
+        
+        try:
+            data_serialized = PostModel(**data)
+            db.session.add(data_serialized)
+            db.session.commit()
+        except sqlalchemy.exc.IntegrityError as e:
+            return {'unique': e}
+        return data_serialized
+
+
 
 
 class MembersModel (db.Model):
@@ -171,7 +182,7 @@ class MembersModel (db.Model):
     def check_user_in_group(user_id, group_id):
  
         member_in_group = MembersModel.query.filter(MembersModel.groups_id == group_id, MembersModel.users_id == user_id)
-
+        
         return member_in_group
 
         
