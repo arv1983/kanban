@@ -42,16 +42,18 @@ def join(group_id):
     data['groups_id'] = group_id
     data['users_id'] = UsersModel.check_user(get_jwt_identity()).id
 
-    check_group = GroupsModel.check_group_if_exists_by_id(group_id)
-    if not check_group:
+    if not GroupsModel.check_group_if_exists_by_id(group_id):
         return {'Erro': 'Grupo não encontrado.'},404
     
-    
-
     if MembersModel.check_user_in_group(data['users_id'], group_id).all():
-        return{'Erro': 'Usuário já cadastrado.'},401
-    
+        return {'Erro': 'Usuário já cadastrado.'},401
 
+    if GroupsModel.check_admin(group_id,data['users_id']):
+        return {'Erro': 'Você já é admin do grupo'}
+    
+    
+    data['date'] = datetime.now()
+    
     try:
         data_serialized = MembersModel(**data)
         db.session.add(data_serialized)
@@ -62,7 +64,7 @@ def join(group_id):
         return {'fff':'fff'}
 
 
-    return {'Grupo': group_id}
+    return '',200
 
 @bp.route("/exit_group/<int:group_id>", methods=["POST"])
 @jwt_required()
@@ -80,7 +82,7 @@ def exit(group_id):
     db.session.delete(check_user_in_group)
     db.session.commit()
 
-    return {'ss': 'ss'}
+    return {'Sucesso': 'Usuário saiu do grupo'},200
 
     
     

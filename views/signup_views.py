@@ -8,4 +8,5 @@ def signup():
     data = request.get_json()
     
     response = UsersModel.signup(data)
-    return jsonify(response),201
+
+    return response

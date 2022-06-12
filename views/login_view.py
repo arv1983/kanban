@@ -8,7 +8,8 @@ def login():
     data = request.get_json()
 
     response = UsersModel.login(data)
-    return jsonify(response),200
+
+    return response
 
 @bp.route("/", methods=["GET"])
 def login2():

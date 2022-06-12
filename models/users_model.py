@@ -1,4 +1,4 @@
-from flask import jsonify, request, session
+from flask import Flask, jsonify, request, session
 from sqlalchemy import Column, Date, ForeignKey, String, Integer, and_, or_
 import sqlalchemy
 from sqlalchemy.orm import relationship, backref
@@ -9,6 +9,7 @@ from flask_jwt_extended import create_access_token
 from dataclasses import dataclass
 from datetime import datetime
 
+
 # from flask_sqlalchemy import SQLAlchemy
 # # from psycopg2.errors import UniqueViolation
 # from flask import Flask
@@ -17,7 +18,7 @@ from datetime import datetime
 # db = SQLAlchemy(app)
 
 class UsersModel (db.Model):
-    __tablename__ = "UsersModel"
+    __tablename__ = "tb_users"
     id = db.Column('id', db.Integer, primary_key = True)
     name = db.Column('name', db.Unicode)
     email = db.Column('email', db.Unicode)
@@ -37,13 +38,18 @@ class UsersModel (db.Model):
 
  
     def signup(self):
-
-        validator_response = Validator.signup_validator(self)
-                
-        if validator_response: 
-            return jsonify(validator_response)
-
         
+        validator_response = Validator.signup_validator(self)
+        
+        if validator_response: 
+            return validator_response
+        
+
+        if UsersModel.check_user(self['email']):
+            return {'Erro': 'email já cadastrado'},401
+
+
+
         self['password'] = generate_password_hash(password=self['password'], salt_length=10)
         
         try:
@@ -54,33 +60,39 @@ class UsersModel (db.Model):
             print('psycopg2.errors.UniqueViolation')
             print(e)
             return {'unique': 'ss'}
+        return '',201
+
 
 
     
     def login(self):
         
         validator_response = Validator.login_validator(self)
-                
+
+                      
         if validator_response: 
-            return validator_response
+            return validator_response,401
 
         email = request.json.get("email", None)
         password = request.json.get("password", None)
-        user = UsersModel.query.filter_by(email=email).first()
+        
+        
+        user = UsersModel.check_user(email)
+        
+        if not user:
+            return {'Erro': 'email não encontrado'},401
+
+        
 
         if check_password_hash(user.password, password):
-            return create_access_token(identity=user.email)
+            return {'token': create_access_token(identity=user.email)},200
             
-        return {'Autorização':'negada'},401
+        return {'Autorização':'Negada', 'Motivo':'senha inválida'},401
     
 
     def check_user(user):
 
         cliente = UsersModel.query.filter_by(email=user).first()
-        if not cliente:
-            raise AttributeError(
-                {"Error": "Usuario nao encontrado"},
-            )
         return cliente
 
 
@@ -89,64 +101,68 @@ class UsersModel (db.Model):
 
 class GroupsModel (db.Model):
     
-    __tablename__ = "GroupsModel"
+    __tablename__ = "tb_groups"
     id = db.Column('id', db.Integer, primary_key=True)
-    admin = db.Column('admin', db.Integer, db.ForeignKey('UsersModel.id'))
-    members = db.Column('members', db.Integer, db.ForeignKey('MembersModel.id'))
+    admin = db.Column('admin', db.Integer, db.ForeignKey('tb_users.id'))
     name = db.Column('name', db.Unicode)
 
     usersmodel = db.relationship('UsersModel', foreign_keys=admin)
-    membersmodel = db.relationship('MembersModel', foreign_keys=members)
 
-    def join(user):
 
-        cliente = UsersModel.query.filter_by(email=user).first()
-        if not cliente:
-            raise AttributeError(
-                {"Error": "Usuario nao encontrado"},
-            )
-        return cliente    
+    # def join(user):
+
+    #     cliente = UsersModel.query.filter_by(email=user).first()
+    #     if not cliente:
+    #         raise AttributeError(
+    #             {"Error": "Usuario nao encontrado"}
+    #         )
+    #     return cliente    
     
     def check_group_if_exists_by_id(id_group):
         group = GroupsModel.query.filter_by(id=id_group).first()
+        print(group)
         if not group:
             return False
         return True
 
     def check_group_if_exists_by_name(group_name):
         
-
         produtos = GroupsModel.query.filter(
             GroupsModel.name.like((f'%{group_name}%')) 
         )
-        
-        
-        
         return produtos
 
+    def check_admin(group_id, user_id):
+        group = GroupsModel.query.filter_by(id=group_id).first()
+
+        if(group.admin == user_id):
+            return True
+        return False
 
 
-class Post (db.Model):
-    __tablename__ = "post"
+
+class PostModel (db.Model):
+    __tablename__ = "tb_post"
     id = db.Column('id', db.Integer, primary_key = True)
-    sku = db.Column('sku', db.Unicode)
-    name = db.Column('name', db.Unicode)
-    price = db.Column('price', db.BigInteger)
+    title = db.Column('title', db.Unicode)
     description = db.Column('description', db.Unicode)
-    # Unknown SQL type: 'bytea' 
-    image = db.Column('image', db.String)
+    
+    user_id = db.Column('user_id', db.Integer, db.ForeignKey('tb_users.id'))
+    group_id = db.Column('group_id', db.Integer, db.ForeignKey('tb_groups.id'))
+    
+    
 
 
 class MembersModel (db.Model):
-    __tablename__ = "MembersModel"
+    __tablename__ = "tb_members"
     id = db.Column('id', db.Integer, primary_key = True)
-    id_group = db.Column('id_group', db.Integer)
-    id_member = db.Column('id_member', db.Integer, db.ForeignKey('post.id'))
-    date = db.Column('date', db.Date)
-    users_id = db.Column('users_id', db.Integer, db.ForeignKey('UsersModel.id'))
-    groups_id = db.Column('groups_id', db.Integer, db.ForeignKey('GroupsModel.id'))
+    # id_group = db.Column('id_group', db.Integer)
+    # id_member = db.Column('id_member', db.Integer, db.ForeignKey('post.id'))
+    date = db.Column('date', db.DateTime)
+    users_id = db.Column('users_id', db.Integer, db.ForeignKey('tb_users.id'))
+    groups_id = db.Column('groups_id', db.Integer, db.ForeignKey('tb_groups.id'))
 
-    post = db.relationship('Post', foreign_keys=id_member)
+    # post = db.relationship('Post', foreign_keys=id_member)
     usersmodel = db.relationship('UsersModel', foreign_keys=users_id)
 
     
