@@ -9,3 +9,8 @@ def login():
 
     response = UsersModel.login(data)
     return jsonify(response),200
+
+@bp.route("/", methods=["GET"])
+def login2():
+
+    return {'ss': 'ss'}
